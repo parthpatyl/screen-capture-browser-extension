@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    html {
+      background: transparent;
+    }
+
+    body {
+      width: 300px;
+      padding: 15px;
+      background-color: #1a1a1a;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    h3 {
+      margin: 0 0 20px 0;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #333;
+      border-radius: 12px;
+      background: #2a2a2a;
+      color: #ffffff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      background: #3a3a3a;
+      border-color: #444;
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+      background: #222;
+    }
+
+    svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    .status {
+      margin-top: 15px;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      text-align: center;
+      display: none;
+      background: #333;
+      color: #fff;
+    }
+
+    .status.success {
+      border: 1px solid #4caf50;
+      color: #4caf50;
+    }
+
+    .status.error {
+      border: 1px solid #f44336;
+      color: #f44336;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h3>ScreenCapture</h3>
+    <div class="button-row">
+      <button id="fullBtn" title="Capture Full Page">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-9-2h2v-2h-2v2zm0-4h2v-2h-2v2zm0-4h2V7h-2v2z" />
+        </svg>
+      </button>
+      <button id="windowBtn" title="Capture Visible Area">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H3V6h18v12zM12 7l-2.5 3h5L12 7zm-3.5 4l-2.5 3h5l-2.5-3zm7 0l-2.5 3h5l-2.5-3z" />
+        </svg>
+      </button>
+      <button id="customBtn" title="Select Custom Area">
+        <svg viewBox="0 0 24 24">
+          <path d="M17 15h2V7c0-1.1-.9-2-2-2H9v2h8v8zM7 17V1H5v4H1v2h4v10c0 1.1.9 2 2 2h10v4h2v-4h4v-2H7z" />
+        </svg>
+      </button>
+    </div>
+    <div id="status" class="status"></div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+
+</html>
