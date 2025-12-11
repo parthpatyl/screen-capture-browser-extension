@@ -7,7 +7,8 @@
     "activeTab",
     "scripting",
     "downloads",
-    "clipboardWrite"
+    "clipboardWrite",
+    "storage"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -24,11 +25,38 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ]
     }
   ],
   "background": {
     "service_worker": "background.js"
+  },
+  "commands": {
+    "capture_full": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Q",
+        "mac": "Command+Shift+Q"
+      },
+      "description": "Capture Full Page"
+    },
+    "capture_window": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F",
+        "mac": "Command+Shift+F"
+      },
+      "description": "Capture Visible Part"
+    },
+    "capture_custom": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Space",
+        "mac": "Command+Shift+Space"
+      },
+      "description": "Capture Custom Area"
+    }
   }
 }

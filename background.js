@@ -25,6 +25,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         sendResponse({ success: false, error: err.message });
       });
     return true;
+  } else if (request.action === 'openEditor') {
+    chrome.tabs.create({ url: 'editor.html' });
+    return true;
+  }
+});
+
+chrome.commands.onCommand.addListener(async (command) => {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab) return;
+
+    if (command === 'capture_full') {
+      await handleCapture({ type: 'full' }, tab);
+    } else if (command === 'capture_window') {
+      await handleCapture({ type: 'window' }, tab);
+    } else if (command === 'capture_custom') {
+      await handleCapture({ type: 'custom' }, tab);
+    }
+  } catch (err) {
+    console.error('Command error:', err);
   }
 });
 

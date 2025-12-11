@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Screenshot Editor</title>
+  <style>
+    :root {
+      --bg-color: #1a1a1a;
+      --panel-color: #252526;
+      --border-color: #3e3e3e;
+      --accent-color: #3b82f6;
+      --text-color: #e5e5e5;
+      --text-muted: #a3a3a3;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Header */
+    header {
+      height: 56px;
+      padding: 0 24px;
+      background-color: var(--panel-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      z-index: 20;
+    }
+
+    .brand {
+      font-weight: 600;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-color);
+    }
+
+    .brand svg {
+      color: var(--accent-color);
+    }
+
+    .right-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: white;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-primary:hover {
+      background-color: #2563eb;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: #333;
+    }
+
+    /* Main Layout */
+    .editor-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Toolbar (Left) */
+    .toolbar {
+      width: 60px;
+      background-color: var(--panel-color);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      gap: 8px;
+      overflow-y: auto;
+    }
+
+    .tool-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .tool-btn:hover {
+      background-color: #333;
+      color: var(--text-color);
+    }
+
+    .tool-btn.active {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: var(--accent-color);
+    }
+
+    .tool-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .divider {
+      width: 30px;
+      height: 1px;
+      background-color: var(--border-color);
+      margin: 8px 0;
+    }
+
+    /* Canvas Area */
+    .canvas-wrapper {
+      flex: 1;
+      background-color: #121212;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: auto;
+      /* Allow scrolling */
+      position: relative;
+      background-image: radial-gradient(#333 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    canvas {
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      background-color: #fff;
+    }
+
+    /* Properties Bar (Top-Center Overlay) */
+    .properties-bar {
+      position: absolute;
+      top: 20px;
+      background-color: var(--panel-color);
+      padding: 8px 16px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      z-index: 100;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.2s ease;
+      pointer-events: none;
+    }
+
+    .properties-bar.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Sections */
+    .prop-section {
+      display: none;
+      /* Hidden by default */
+      align-items: center;
+      gap: 15px;
+    }
+
+    .prop-section.active-section {
+      display: flex;
+    }
+
+    .separator {
+      width: 1px;
+      height: 24px;
+      background: var(--border-color);
+    }
+
+    /* Color Palette */
+    .color-options {
+      display: flex;
+      gap: 8px;
+    }
+
+    .color-swatch {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.1s;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.1);
+    }
+
+    .color-swatch.active {
+      border-color: white;
+      box-shadow: 0 0 0 1px var(--panel-color);
+    }
+
+    /* Range Slider */
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-color);
+      font-size: 12px;
+    }
+
+    input[type=range] {
+      width: 80px;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #444;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--text-color);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    select {
+      background: #333;
+      color: white;
+      border: 1px solid #444;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    label {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    input[type=checkbox] {
+      accent-color: var(--accent-color);
+    }
+
+    /* Text Input Overlay */
+    #textInput {
+      position: absolute;
+      background: transparent;
+      border: 1px dashed var(--accent-color);
+      outline: none;
+      padding: 8px;
+      /* Increased padding */
+      display: none;
+      white-space: pre;
+      z-index: 1000;
+      min-width: 50px;
+      cursor: move;
+      /* Indicate draggable */
+    }
+
+    /* Drag Handle (Visual cue on hover) */
+    #textInput:hover {
+      background-color: rgba(59, 130, 246, 0.1);
+      border-style: solid;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="brand">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+        <path d="M2 2l7.586 7.586"></path>
+        <circle cx="11" cy="11" r="2"></circle>
+      </svg>
+      <span>Annotate</span>
+    </div>
+    <div class="right-actions">
+      <button class="btn btn-secondary" id="btn-cancel">Close</button>
+      <button class="btn btn-primary" id="btn-download">Download</button>
+    </div>
+  </header>
+
+  <div class="editor-body">
+    <div class="toolbar">
+      <button class="tool-btn active" id="tool-pointer" title="Move">
+        <svg viewBox="0 0 24 24">
+          <path d="M7 2l12 11.2-5.8.5 3.3 7.3-2.2.9-3.2-7.4-4.4 4.6z" />
+        </svg>
+      </button>
+      <div class="divider"></div>
+      <button class="tool-btn" id="tool-pen" title="Pen">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+        </svg>
+      </button>
+      <button class="tool-btn" id="tool-highlighter" title="Highlighter">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M18.5 1.15c-.53 0-1.04.19-1.43.58l-1.98 1.98 3.75 3.75 1.98-1.98c.78-.78.78-2.05 0-2.83L19.93 1.73c-.39-.39-.9-.58-1.43-.58zM14 4.83l-10.29 10.3c-.39.39-.59.91-.59 1.46v2.91h2.91c.55 0 1.07-.2 1.46-.59L17.75 8.58 14 4.83zM3 21v2h18v-2H3z" />
+        </svg>
+      </button>
+      <button class="tool-btn" id="tool-text" title="Text">
+        <svg viewBox="0 0 24 24">
+          <path d="M5 4v3h5.5v12h3V7H19V4z" />
+        </svg>
+      </button>
+      <div class="divider"></div>
+      <button class="tool-btn" id="tool-line" title="Arrow">
+        <svg viewBox="0 0 24 24">
+          <path d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z" />
+        </svg>
+      </button>
+      <button class="tool-btn" id="tool-rect" title="Rectangle">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 3h18v18H3z" fill="none" stroke="currentColor" stroke-width="2" />
+        </svg>
+      </button>
+      <button class="tool-btn" id="tool-circle" title="Circle">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+        </svg>
+      </button>
+      <div class="divider"></div>
+      <button class="tool-btn" id="btn-undo" title="Undo">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="canvas-wrapper">
+      <div id="properties-bar" class="properties-bar">
+        <!-- Common (Color) -->
+        <div class="color-options" id="colorPalette">
+          <div class="color-swatch active" style="background-color: #ef4444" data-color="#ef4444"></div>
+          <div class="color-swatch" style="background-color: #f59e0b" data-color="#f59e0b"></div>
+          <div class="color-swatch" style="background-color: #10b981" data-color="#10b981"></div>
+          <div class="color-swatch" style="background-color: #3b82f6" data-color="#3b82f6"></div>
+          <div class="color-swatch" style="background-color: #a855f7" data-color="#a855f7"></div>
+          <div class="color-swatch" style="background-color: #000000" data-color="#000000"></div>
+          <div class="color-swatch" style="background-color: #ffffff" data-color="#ffffff"></div>
+        </div>
+
+        <div class="separator"></div>
+
+        <!-- Shape/Pen Properties -->
+        <div id="prop-draw" class="prop-section active-section">
+          <div class="control-group">
+            <span>Size</span>
+            <input type="range" id="strokeSize" min="2" max="20" value="4">
+          </div>
+        </div>
+
+        <!-- Text Properties -->
+        <div id="prop-text" class="prop-section">
+          <div class="control-group">
+            <select id="fontFamily">
+              <option value="sans-serif">Sans Serif</option>
+              <option value="serif">Serif</option>
+              <option value="monospace">Monospace</option>
+              <option value="Impact">Impact</option>
+              <option value="Comic Sans MS">Comic Sans</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <span>Size</span>
+            <input type="range" id="textSize" min="12" max="72" value="24">
+          </div>
+          <div class="separator"></div>
+          <div class="control-group">
+            <label>
+              <input type="checkbox" id="textBg"> Fill
+            </label>
+            <label>
+              <input type="checkbox" id="textBorder"> Border
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <canvas id="editorCanvas"></canvas>
+      <!-- Draggable Text Input -->
+      <div id="textInput" contenteditable="true" spellcheck="false"></div>
+    </div>
+  </div>
+
+  <script src="editor.js"></script>
+</body>
+
+</html>
