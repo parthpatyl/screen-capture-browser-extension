@@ -302,6 +302,50 @@
       background-color: rgba(59, 130, 246, 0.1);
       border-style: solid;
     }
+
+    /* Context Menu */
+    .context-menu {
+      position: absolute;
+      background: var(--panel-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 200;
+      min-width: 120px;
+    }
+
+    .context-menu button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 16px;
+      text-align: left;
+      background: transparent;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .context-menu button:hover {
+      background-color: #333;
+    }
+
+    .context-menu button.danger {
+      color: #ef4444;
+    }
+
+    .context-menu button.danger:hover {
+      background-color: rgba(239, 68, 68, 0.1);
+    }
+
+    .context-menu button svg {
+      fill: currentColor;
+    }
   </style>
 </head>
 
@@ -425,6 +469,25 @@
       <canvas id="editorCanvas"></canvas>
       <!-- Draggable Text Input -->
       <div id="textInput" contenteditable="true" spellcheck="false"></div>
+
+      <!-- Context Menu -->
+      <div id="context-menu" class="context-menu">
+        <button id="btn-ctx-edit">
+          <svg viewBox="0 0 24 24" width="14" height="14">
+            <path
+              d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+              fill="currentColor" />
+          </svg>
+          Edit
+        </button>
+        <button id="btn-ctx-delete" class="danger">
+          <svg viewBox="0 0 24 24" width="14" height="14">
+            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+              fill="currentColor" />
+          </svg>
+          Delete
+        </button>
+      </div>
     </div>
   </div>
 
